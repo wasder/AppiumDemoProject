@@ -1,5 +1,11 @@
 public class MainClass {
 
+    private String classString = "Hello, world";
+
+    public String getClassString() {
+        return this.classString;
+    }
+
     private int classNumber = 20;
 
     public int getClassNumber(){
