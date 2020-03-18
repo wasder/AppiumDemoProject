@@ -6,7 +6,7 @@ class MainClassTest {
 
     @Test
     void testGetLocalNumber() {
-        int expected = 15;
+        int expected = 14;
         int actual = new MainClass().getLocalNumber();
         assertEquals(expected, actual ,"Method getLocalNumber() doesn't return " + expected);
     }
