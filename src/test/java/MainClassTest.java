@@ -1,30 +1,37 @@
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.AndroidDriver;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringContains.containsStringIgnoringCase;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.net.URL;
 
 class MainClassTest {
 
-    @Test
-    void testGetLocalNumber() {
-        int expected = 14;
-        int actual = new MainClass().getLocalNumber();
-        assertEquals(expected, actual ,"Method getLocalNumber() doesn't return " + expected);
+    private AppiumDriver driver;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+        desiredCapabilities.setCapability("platformName", "Android");
+        desiredCapabilities.setCapability("deviceName", "AndroidTestDevice");
+        desiredCapabilities.setCapability("platformVersion", "8.0");
+        desiredCapabilities.setCapability("automationName", "Appium");
+        desiredCapabilities.setCapability("appPackage", "org.wikipedia");
+        desiredCapabilities.setCapability("appActivity", ".main.MainActivity");
+        desiredCapabilities.setCapability("app", "C:\\Users\\ivang\\IdeaProjects\\AppiumDemoProject\\apks\\Wikipedia+2.7.50278-r-2019-12-12.apk");
+
+        driver = new AndroidDriver(new URL("http://localhost:4723/wd/hub"), desiredCapabilities);
     }
 
     @Test
-    void testGetClassNumber() {
-        int expected = 45;
-        int actual = new MainClass().getClassNumber();
-        assertTrue(actual > expected, "Method getClassNumber() returns " + actual + " which is less than " + expected);
+    public void FirstTest(){
+        System.out.println("First test run");
     }
 
-    @Test
-    void testGetClassString() {
-        String expected = "hello";
-        String actual = new MainClass().getClassString();
-        assertThat(actual, containsStringIgnoringCase(expected));
+    @AfterEach
+    void tearDown() {
+        driver.quit();
     }
 }
