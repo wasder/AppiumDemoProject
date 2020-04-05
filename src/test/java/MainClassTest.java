@@ -38,16 +38,13 @@ class MainClassTest {
     public void firstTest() {
         waitForElementAndClick(
                 By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
-                "Cannot find search input",
                 5);
         waitForElementAndSendKeys(
                 By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
                 "Java",
-                "Cannot find search input",
                 5);
         waitForElementPresent(
                 By.xpath( "//android.view.ViewGroup//*[contains(@text, 'Object')]"),
-                "Cannot find '//android.view.ViewGroup//*[contains(@text, 'Object')]'",
                 15
         );
     }
@@ -56,19 +53,16 @@ class MainClassTest {
     public void cancelSearch() {
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
-                "Cannot find org.wikipedia:id/search_container",
                 5
         );
 
         waitForElementAndSendKeys(
                 By.id("org.wikipedia:id/search_src_text"),
                 "Java",
-                "Cannot find search input",
                 5);
 
         waitForElementAndClear(
                 By.id("org.wikipedia:id/search_src_text"),
-                "Cannot find search input",
                 5);
 
 
@@ -84,24 +78,20 @@ class MainClassTest {
     void compareArticleTitle() {
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
-                "Cannot find org.wikipedia:id/search_container",
                 5
         );
 
         waitForElementAndSendKeys(
                 By.id("org.wikipedia:id/search_src_text"),
                 "Java",
-                "Cannot find search input",
                 5);
 
         waitForElementAndClick(
                 By.xpath( "//android.view.ViewGroup//*[contains(@text, 'Object-oriented')]"),
-                "Cannot find search input",
                 5);
 
         WebElement title = waitForElementPresent(
                 MobileBy.AccessibilityId("Java (programming language)"),
-                "Cannot find title",
                 20
         );
 
@@ -112,25 +102,39 @@ class MainClassTest {
                 "Unexpected title");
     }
 
-    private WebElement waitForElementPresent(By by, String errorMsg, long timeoutInSeconds) {
+    @Test
+    void testSearchTitle() {
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5
+        );
+
+        waitForElementAndCheckText(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Search Wikipedia",
+                5
+        );
+    }
+
+    private WebElement waitForElementPresent(By by, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        wait.withMessage(errorMsg + "\n");
+        wait.withMessage("Can't find element " + by.toString());
         return wait.until(
                 ExpectedConditions.presenceOfElementLocated(by)
         );
     }
 
-    private WebElement waitForElementPresent(By by, String errorMsg) {
-        return waitForElementPresent(by, errorMsg, 5);
+    private WebElement waitForElementPresent(By by) {
+        return waitForElementPresent(by, 5);
     }
 
-    private WebElement waitForElementAndClick(By by, String errorMsg, long timeoutInSeconds) {
-        WebElement webElement = waitForElementPresent(by, errorMsg, timeoutInSeconds);
+    private WebElement waitForElementAndClick(By by, long timeoutInSeconds) {
+        WebElement webElement = waitForElementPresent(by, timeoutInSeconds);
         webElement.click();
         return webElement;
     }
-    private WebElement waitForElementAndSendKeys(By by, String value, String errorMsg, long timeoutInSeconds) {
-        WebElement webElement = waitForElementPresent(by, errorMsg, timeoutInSeconds);
+    private WebElement waitForElementAndSendKeys(By by, String value, long timeoutInSeconds) {
+        WebElement webElement = waitForElementPresent(by, timeoutInSeconds);
         webElement.sendKeys(value);
         return webElement;
     }
@@ -143,9 +147,19 @@ class MainClassTest {
         );
     }
 
-    private WebElement waitForElementAndClear(By by, String errorMsg, long timeoutInSeconds) {
-        WebElement webElement = waitForElementPresent(by, errorMsg, timeoutInSeconds);
+    private WebElement waitForElementAndClear(By by, long timeoutInSeconds) {
+        WebElement webElement = waitForElementPresent(by, timeoutInSeconds);
         webElement.clear();
+        return webElement;
+    }
+
+    private WebElement waitForElementAndCheckText(By by, String expectedText, long timeoutInSeconds) {
+        WebElement webElement = waitForElementPresent(by, timeoutInSeconds);
+        String actualText = webElement.getAttribute("text");
+        assertEquals(
+                expectedText,
+                actualText,
+                "Unexpected text");
         return webElement;
     }
 
