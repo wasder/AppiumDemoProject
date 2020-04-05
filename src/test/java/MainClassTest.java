@@ -13,6 +13,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.net.URL;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -126,6 +129,32 @@ class MainClassTest {
                 5
         );
     }
+
+
+    @Test
+    public void testSearchResults() {
+        String searchText = "Java";
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5
+        );
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                searchText,
+                5);
+
+        //Затем убеждается, что в каждом результате поиска есть это слово.
+        List<WebElement> searchResults = waitForElementsPresent(
+                By.id("org.wikipedia:id/page_list_item_title"),
+                15);
+
+        for (WebElement searchResult : searchResults) {
+            String actualText = searchResult.getAttribute("text");
+            assertThat(actualText, is(containsString(searchText)));
+        }
+
+    }
+
 
     private WebElement waitForElementPresent(By by, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
