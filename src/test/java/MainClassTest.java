@@ -11,8 +11,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class MainClassTest {
@@ -51,23 +53,31 @@ class MainClassTest {
 
     @Test
     public void cancelSearch() {
+        //Ищет какое-то слово
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
                 5
         );
-
         waitForElementAndSendKeys(
                 By.id("org.wikipedia:id/search_src_text"),
                 "Java",
                 5);
 
-        waitForElementAndClear(
-                By.id("org.wikipedia:id/search_src_text"),
-                5);
+        //Убеждается, что найдено несколько статей
+        List<WebElement> searchResults = waitForElementsPresent(
+                By.xpath("//*[contains(@resource-id, 'org.wikipedia:id/search_results_list')]/android.view.ViewGroup"),
+                15);
+        assertTrue(searchResults.size() > 0, "Search results are empty"); //Не обязательная проверка, потому что если результатов не будет, то упадёт раньше, на поиске элементов.
 
-
-        waitForElementNotPresent(
+        //Отменяет поиск
+        waitForElementAndClick(
                 By.id("org.wikipedia:id/search_close_btn"),
+                5
+        );
+
+        //Убеждается, что результат поиска пропал
+        waitForElementNotPresent(
+                By.xpath("//*[contains(@resource-id, 'org.wikipedia:id/search_results_list')]/android.view.ViewGroup"),
                 "X is still present",
                 5
         );
@@ -102,6 +112,7 @@ class MainClassTest {
                 "Unexpected title");
     }
 
+
     @Test
     void testSearchTitle() {
         waitForElementAndClick(
@@ -123,6 +134,14 @@ class MainClassTest {
                 ExpectedConditions.presenceOfElementLocated(by)
         );
     }
+    private List<WebElement> waitForElementsPresent(By by, long timeoutInSeconds) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage("Can't find elements " + by.toString());
+        return wait.until(
+                ExpectedConditions.presenceOfAllElementsLocatedBy(by)
+        );
+    }
+
 
     private WebElement waitForElementPresent(By by) {
         return waitForElementPresent(by, 5);
@@ -146,6 +165,7 @@ class MainClassTest {
                 ExpectedConditions.invisibilityOfElementLocated(by)
         );
     }
+
 
     private WebElement waitForElementAndClear(By by, long timeoutInSeconds) {
         WebElement webElement = waitForElementPresent(by, timeoutInSeconds);
