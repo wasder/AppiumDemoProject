@@ -1,10 +1,12 @@
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileBy;
+import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -34,9 +36,14 @@ class MainClassTest {
         desiredCapabilities.setCapability("appPackage", "org.wikipedia");
         desiredCapabilities.setCapability("appActivity", ".main.MainActivity");
         desiredCapabilities.setCapability("app", "C:\\Users\\ivang\\IdeaProjects\\AppiumDemoProject\\apks\\Wikipedia+2.7.50278-r-2019-12-12.apk");
-        desiredCapabilities.setCapability("noReset", "true");
+        desiredCapabilities.setCapability("noReset", "false");
+        desiredCapabilities.setCapability("clearSystemFiles", "true");
 
         driver = new AndroidDriver(new URL("http://localhost:4723/wd/hub"), desiredCapabilities);
+
+        waitForElementAndClick(
+                By.id( "org.wikipedia:id/fragment_onboarding_skip_button"),
+                5);
     }
 
     @Test
@@ -56,7 +63,6 @@ class MainClassTest {
 
     @Test
     public void cancelSearch() {
-        //Ищет какое-то слово
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
                 5
@@ -155,6 +161,87 @@ class MainClassTest {
 
     }
 
+    @Test
+    void testSwipeArticleTitle() {
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5
+        );
+
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Appium",
+                5);
+
+        waitForElementAndClick(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                5);
+
+        WebElement title = waitForElementPresent(
+                MobileBy.AccessibilityId("Appium"),
+                20
+        );
+        swipeUoToFindElement(
+                By.xpath("//*[@text='View page in browser']"),
+                10);
+    }
+
+    @Test
+    void saveFirstArticleToMyList() {
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5
+        );
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Appium",
+                5);
+        waitForElementAndClick(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                5);
+        waitForElementPresent(
+                MobileBy.AccessibilityId("Appium"),
+                20
+        );
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/article_menu_bookmark"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/onboarding_button"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/create_button"),
+                5);
+        String folderName = "Learning appium";
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/text_input"),
+                folderName,
+                5);
+        waitForElementAndClick(
+                By.id("android:id/button1"),
+                5);
+        waitForElementAndClick(
+                By.xpath("//android.widget.ImageButton[@content-desc=\"Navigate up\"]"),
+                5);
+        waitForElementAndClick(
+                By.id("android:id/button2"),
+                5);
+        waitForElementAndClick(
+                By.xpath("//android.widget.FrameLayout[@content-desc=\"My lists\"]"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/view_onboarding_action_negative"),
+                5);
+        waitForElementAndClick(
+                By.xpath( "//*[@text='"+ folderName +"']"),
+                5);
+        swipeElementToLeft(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']")
+        );
+        waitForElementNotPresent(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                10);
+    }
 
     private WebElement waitForElementPresent(By by, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
@@ -194,7 +281,10 @@ class MainClassTest {
                 ExpectedConditions.invisibilityOfElementLocated(by)
         );
     }
-
+    private boolean waitForElementNotPresent(By by, long timeoutInSeconds) {
+        String errorMsg = "Element " + by.toString() + " is still present";
+        return waitForElementNotPresent(by,  errorMsg , timeoutInSeconds);
+    }
 
     private WebElement waitForElementAndClear(By by, long timeoutInSeconds) {
         WebElement webElement = waitForElementPresent(by, timeoutInSeconds);
@@ -210,6 +300,53 @@ class MainClassTest {
                 actualText,
                 "Unexpected text");
         return webElement;
+    }
+
+    protected void swipeUp(int timeOfSwipe){
+        TouchAction action = new TouchAction(driver);
+        Dimension size = driver.manage().window().getSize();
+        int x = size.width / 2;
+        int startY = (int) (size.height * 0.8);
+        int endY = (int) (size.height * 0.2);
+        action
+                .press(x, startY)
+                .waitAction(timeOfSwipe)
+                .moveTo(x, endY)
+                .release()
+                .perform();
+
+    }
+
+    protected void swipeUpQuick(){
+        swipeUp(200);
+    }
+
+    protected void swipeUoToFindElement(By by, int maxSwipes){
+        int swipesCounter = 0;
+        while(driver.findElements(by).size() == 0){
+            if (swipesCounter>maxSwipes){
+                waitForElementPresent(by, 0);
+                return;
+            }
+            swipeUpQuick();
+            ++swipesCounter;
+        }
+    }
+
+    protected void swipeElementToLeft(By by){
+        WebElement webElement =  waitForElementPresent(by,10);
+        int leftX = webElement.getLocation().getX();
+        int rightX = leftX + webElement.getSize().getWidth();
+        int upperY = webElement.getLocation().getY();
+        int lowerY = upperY + webElement.getSize().getHeight();
+        int middleY = (upperY + lowerY) / 2;
+        TouchAction action = new TouchAction(driver);
+        action
+                .press(rightX, middleY)
+                .waitAction(200)
+                .moveTo(leftX, middleY)
+                .release()
+                .perform();
     }
 
     @AfterEach
