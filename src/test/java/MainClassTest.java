@@ -6,9 +6,7 @@ import io.appium.java_client.touch.offset.PointOption;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -46,6 +44,9 @@ class MainClassTest {
 
         driver = new AndroidDriver(new URL("http://localhost:4723/wd/hub"), desiredCapabilities);
 
+        //Fix Screen orientation on start
+        driver.rotate(ScreenOrientation.PORTRAIT);
+        //Skip onboarding on clean start
         waitForElementAndClick(
                 By.id( "org.wikipedia:id/fragment_onboarding_skip_button"),
                 5);
@@ -356,6 +357,33 @@ class MainClassTest {
                 By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
                 5);
         assertElementPresent(By.xpath("//android.view.View[@content-desc=\"Appium\"]"));
+    }
+
+    @Test
+    void testScreenOrientation() {
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5);
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Appium",
+                5);
+        waitForElementAndClick(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                5);
+        String titleBeforeRotation = waitForElementAndGetAttribute(
+                By.xpath("//android.view.View[@content-desc=\"Appium\"]"),
+                "content-desc",
+                20
+        );
+        driver.rotate(ScreenOrientation.LANDSCAPE);
+        String titleAfterRotation = waitForElementAndGetAttribute(
+                By.xpath("//android.view.View[@content-desc=\"Appium\"]"),
+                "content-desc",
+                20
+        );
+        assertEquals(titleBeforeRotation, titleAfterRotation, "Title changed");
+
     }
 
     private WebElement waitForElementPresent(By by, long timeoutInSeconds) {
