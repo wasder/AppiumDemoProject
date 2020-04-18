@@ -23,8 +23,7 @@ import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class MainClassTest {
@@ -261,7 +260,7 @@ class MainClassTest {
                 "Appium",
                 5);
         waitForElementAndClick(
-                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
                 5);
         waitForElementAndClick(
                 By.id("org.wikipedia:id/article_menu_bookmark"),
@@ -344,7 +343,20 @@ class MainClassTest {
         assertEquals(javaTitle, javaTitleAfter,"Title не совпадает");
     }
 
-
+    @Test
+    void testAssertTitle() {
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5);
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Appium",
+                5);
+        waitForElementAndClick(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                5);
+        assertElementPresent(By.xpath("//android.view.View[@content-desc=\"Appium\"]"));
+    }
 
     private WebElement waitForElementPresent(By by, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
@@ -459,6 +471,11 @@ class MainClassTest {
     protected String waitForElementAndGetTagName(By by, long timeout){
         WebElement webElement = waitForElementPresent(by, timeout);
         return webElement.getTagName();
+    }
+
+    private void assertElementPresent(By by){
+        WebElement element = driver.findElement(by);
+        assertNotNull(element);
     }
 
     @AfterEach
