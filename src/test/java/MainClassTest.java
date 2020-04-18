@@ -32,12 +32,13 @@ class MainClassTest {
         desiredCapabilities.setCapability("platformName", "Android");
         desiredCapabilities.setCapability("deviceName", "AndroidTestDevice");
         desiredCapabilities.setCapability("platformVersion", "8.0");
-        desiredCapabilities.setCapability("automationName", "Appium");
+        desiredCapabilities.setCapability("automationName", "UiAutomator2");
         desiredCapabilities.setCapability("appPackage", "org.wikipedia");
         desiredCapabilities.setCapability("appActivity", ".main.MainActivity");
         desiredCapabilities.setCapability("app", "C:\\Users\\ivang\\IdeaProjects\\AppiumDemoProject\\apks\\Wikipedia+2.7.50278-r-2019-12-12.apk");
         desiredCapabilities.setCapability("noReset", "false");
         desiredCapabilities.setCapability("clearSystemFiles", "true");
+        desiredCapabilities.setCapability("udid","emulator-5556");
 
         driver = new AndroidDriver(new URL("http://localhost:4723/wd/hub"), desiredCapabilities);
 
@@ -243,6 +244,102 @@ class MainClassTest {
                 10);
     }
 
+    @Test
+    void saveTwoArticlesToMyList() {
+        //Search and save first
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5
+        );
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Appium",
+                5);
+        waitForElementAndClick(
+                By.xpath( "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/article_menu_bookmark"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/onboarding_button"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/create_button"),
+                5);
+        String folderName = "Learning appium";
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/text_input"),
+                folderName,
+                5);
+        waitForElementAndClick(
+                By.xpath("//*[@text='OK']"),
+                5);
+        waitForElementAndClick(
+                By.xpath("//android.widget.ImageButton[@content-desc=\"Navigate up\"]"),
+                5);
+        waitForElementAndClick(
+                By.id("android:id/button2"),
+                5);
+
+        //Search and save second
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                5
+        );
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Java",
+                5);
+        waitForElementAndClick(
+                By.xpath( "//android.view.ViewGroup//*[contains(@text, 'Object-oriented')]"),
+                5);
+        String javaTitle = waitForElementAndGetTagName(
+                MobileBy.xpath("//android.view.View[@content-desc=\"Java (programming language)\"]"),
+                20
+        );
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/article_menu_bookmark"),
+                5);
+        waitForElementAndClick(
+                By.xpath( "//*[@text='"+ folderName +"']"),
+                5);
+        waitForElementAndClick(
+                By.xpath("//android.widget.ImageButton[@content-desc=\"Navigate up\"]"),
+                5);
+        waitForElementAndClick(
+                By.id("android:id/button2"),
+                5);
+
+        waitForElementAndClick(
+                By.xpath("//android.widget.FrameLayout[@content-desc=\"My lists\"]"),
+                5);
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/view_onboarding_action_negative"),
+                5);
+        waitForElementAndClick(
+                By.xpath("//*[@text='"+ folderName +"']"),
+                5);
+        String appiumInListXpath = "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']/..";
+        swipeElementToLeft(
+                By.xpath(appiumInListXpath)
+        );
+        waitForElementNotPresent(
+                By.xpath(appiumInListXpath),
+                10);
+        waitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Java (programming language)']/.."),
+                10);
+        String javaTitleAfter = waitForElementAndGetTagName(
+                MobileBy.AccessibilityId("Java (programming language)"),
+                20
+        );
+
+        assertEquals(javaTitle, javaTitleAfter,"Title не совпадает");
+    }
+
+
+
     private WebElement waitForElementPresent(By by, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage("Can't find element " + by.toString());
@@ -336,7 +433,7 @@ class MainClassTest {
     protected void swipeElementToLeft(By by){
         WebElement webElement =  waitForElementPresent(by,10);
         int leftX = webElement.getLocation().getX();
-        int rightX = leftX + webElement.getSize().getWidth();
+        int rightX = leftX + webElement.getSize().getWidth() - 1;
         int upperY = webElement.getLocation().getY();
         int lowerY = upperY + webElement.getSize().getHeight();
         int middleY = (upperY + lowerY) / 2;
@@ -347,6 +444,15 @@ class MainClassTest {
                 .moveTo(leftX, middleY)
                 .release()
                 .perform();
+    }
+
+    protected String waitForElementAndGetAttribute(By by, String attribute, long timeout){
+        WebElement webElement = waitForElementPresent(by, timeout);
+        return webElement.getAttribute(attribute);
+    }
+    protected String waitForElementAndGetTagName(By by, long timeout){
+        WebElement webElement = waitForElementPresent(by, timeout);
+        return webElement.getTagName();
     }
 
     @AfterEach
