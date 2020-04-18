@@ -2,6 +2,7 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileBy;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.touch.offset.PointOption;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,12 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.time.Duration;
 import java.util.List;
 
+import static io.appium.java_client.touch.WaitOptions.waitOptions;
+import static io.appium.java_client.touch.offset.PointOption.point;
+import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -294,8 +299,9 @@ class MainClassTest {
         waitForElementAndClick(
                 By.xpath( "//android.view.ViewGroup//*[contains(@text, 'Object-oriented')]"),
                 5);
-        String javaTitle = waitForElementAndGetTagName(
+        String javaTitle = waitForElementAndGetAttribute(
                 MobileBy.xpath("//android.view.View[@content-desc=\"Java (programming language)\"]"),
+                "content-desc",
                 20
         );
         waitForElementAndClick(
@@ -406,9 +412,9 @@ class MainClassTest {
         int startY = (int) (size.height * 0.8);
         int endY = (int) (size.height * 0.2);
         action
-                .press(x, startY)
-                .waitAction(timeOfSwipe)
-                .moveTo(x, endY)
+                .press(point(x, startY))
+                .waitAction(waitOptions(ofSeconds(timeOfSwipe)))
+                .moveTo(point(x, startY))
                 .release()
                 .perform();
 
@@ -439,9 +445,9 @@ class MainClassTest {
         int middleY = (upperY + lowerY) / 2;
         TouchAction action = new TouchAction(driver);
         action
-                .press(rightX, middleY)
-                .waitAction(200)
-                .moveTo(leftX, middleY)
+                .press(point(rightX, middleY))
+                .waitAction(waitOptions(ofSeconds(3)))
+                .moveTo(point(leftX, middleY))
                 .release()
                 .perform();
     }
