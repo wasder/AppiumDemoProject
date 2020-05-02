@@ -5,9 +5,9 @@ import org.openqa.selenium.By;
 
 public class MyListsPageObject extends MainPageObject {
     private static final String
-            CLOSE_ONBOARDING = "org.wikipedia:id/view_onboarding_action_negative",
-            FOLDER_BY_NAME_TPL = "//*[@text='{FOLDER_NAME}']",
-            ARTICLE_BY_TITLE_TPL = "//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='{ARTICLE_TITLE}']";
+            CLOSE_ONBOARDING = "id:org.wikipedia:id/view_onboarding_action_negative",
+            FOLDER_BY_NAME_TPL = "xpath://*[@text='{FOLDER_NAME}']",
+            ARTICLE_BY_TITLE_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='{ARTICLE_TITLE}']";
 
     private static String getFolderByNameTpl(String folderName) {
         return FOLDER_BY_NAME_TPL.replace("{FOLDER_NAME}", folderName);
@@ -23,29 +23,29 @@ public class MyListsPageObject extends MainPageObject {
     }
 
     public void closeOnboarding() {
-        this.waitForElementAndClick(By.id(CLOSE_ONBOARDING), 5);
+        this.waitForElementAndClick(CLOSE_ONBOARDING, 5);
     }
 
     public void openFolderByName(String folderName) {
-        this.waitForElementAndClick(By.xpath(getFolderByNameTpl(folderName)), 5);
+        this.waitForElementAndClick(getFolderByNameTpl(folderName), 5);
     }
 
     public void swipeByArticleToDelete(String articleTitle) {
         this.waitForArticleToAppear(articleTitle);
-        this.swipeElementToLeft(By.xpath(getArticleByTitleTpl(articleTitle)));
+        this.swipeElementToLeft(getArticleByTitleTpl(articleTitle));
         this.waitForArticleToDisappear(articleTitle);
     }
 
     public void waitForArticleToAppear(String articleTitle) {
-        this.waitForElementPresent(By.xpath(getArticleByTitleTpl(articleTitle)), 10);
+        this.waitForElementPresent(getArticleByTitleTpl(articleTitle), 10);
     }
 
     public void waitForArticleToDisappear(String articleTitle) {
-        this.waitForElementNotPresent(By.xpath(getArticleByTitleTpl(articleTitle)), 10);
+        this.waitForElementNotPresent(getArticleByTitleTpl(articleTitle), 10);
     }
 
     public void clickArticleByName(String articleTitle) {
-        this.waitForElementAndClick(By.xpath(getArticleByTitleTpl(articleTitle)), 10);
+        this.waitForElementAndClick(getArticleByTitleTpl(articleTitle), 10);
     }
 
 

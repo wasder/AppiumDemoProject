@@ -6,13 +6,13 @@ import org.openqa.selenium.By;
 public class NavigationUI extends MainPageObject {
 
     private static final String
-            MY_LISTS_LINK = "//android.widget.FrameLayout[@content-desc=\"My lists\"]";
+            MY_LISTS_LINK = "xpath://android.widget.FrameLayout[@content-desc=\"My lists\"]";
 
     public NavigationUI(AppiumDriver driver) {
         super(driver);
     }
 
     public void clickMyLists() {
-        this.waitForElementAndClick(By.xpath(MY_LISTS_LINK), 5);
+        this.waitForElementAndClick(MY_LISTS_LINK, 5);
     }
 }
