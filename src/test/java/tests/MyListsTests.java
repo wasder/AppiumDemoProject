@@ -5,6 +5,10 @@ import lib.ui.ArticlePageObject;
 import lib.ui.MyListsPageObject;
 import lib.ui.NavigationUI;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.ArticlePageObjectFactory;
+import lib.ui.factories.MyListsPageObjectFactory;
+import lib.ui.factories.NavigationUIFactory;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,22 +17,22 @@ public class MyListsTests extends CoreTestCase {
 
     @Test
     void saveFirstArticleToMyList() {
-        SearchPageObject searchPageObject = new SearchPageObject(driver);
+        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
         searchPageObject.initSearchInput();
-        searchPageObject.typeSearchLine("Java");
-        searchPageObject.clickSearchResult("Object-oriented programming language");
+        searchPageObject.typeSearchLine("appium");
+        searchPageObject.clickSearchResult("Appium");
 
-        ArticlePageObject articlePageObject = new ArticlePageObject(driver);
-        articlePageObject.waitForTitleElement("Java (programming language)");
-        String articleTitle = articlePageObject.getArticleTitle("Java (programming language)");
+        ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
+        articlePageObject.waitForTitleElement("Appium");
+        String articleTitle = articlePageObject.getArticleTitle("Appium");
         String folderName = "Learning appium";
         articlePageObject.addArticleToMyNewList(folderName, true);
         articlePageObject.closeArticle();
 
-        NavigationUI navigationUI = new NavigationUI(driver);
+        NavigationUI navigationUI = NavigationUIFactory.get(driver);
         navigationUI.clickMyLists();
 
-        MyListsPageObject myListsPageObject = new MyListsPageObject(driver);
+        MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
         myListsPageObject.closeOnboarding();
         myListsPageObject.openFolderByName(folderName);
         myListsPageObject.swipeByArticleToDelete(articleTitle);
@@ -37,41 +41,41 @@ public class MyListsTests extends CoreTestCase {
     @Test
     void saveTwoArticlesToMyList() {
         String appium = "Appium";
-        String java = "Java";
-        String javaTitle = "Java (programming language)";
+        String selenium = "selenium";
+        String seleniumTitle = "Selenium (software)";
         String folderName = "Learning appium";
 
         //Search and save first
-        SearchPageObject searchPageObject = new SearchPageObject(driver);
+        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
         searchPageObject.initSearchInput();
         searchPageObject.typeSearchLine("appium");
         searchPageObject.clickSearchResult(appium);
 
-        ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+        ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
         articlePageObject.waitForTitleElement(appium);
         articlePageObject.addArticleToMyNewList(folderName, true);
         articlePageObject.closeArticle();
 
         //Search and save second
         searchPageObject.initSearchInput();
-        searchPageObject.typeSearchLine(java);
-        searchPageObject.clickSearchResult("Object-oriented programming language");
+        searchPageObject.typeSearchLine(selenium);
+        searchPageObject.clickSearchResult("Testing framework for web applications");
 
-        articlePageObject.waitForTitleElement(javaTitle);
-        String javaTitleBefore = articlePageObject.getArticleTitle(javaTitle);
+        articlePageObject.waitForTitleElement(seleniumTitle);
+        String javaTitleBefore = articlePageObject.getArticleTitle(seleniumTitle);
         articlePageObject.addArticleToMyList(folderName);
         articlePageObject.closeArticle();
 
-        NavigationUI navigationUI = new NavigationUI(driver);
+        NavigationUI navigationUI = NavigationUIFactory.get(driver);
         navigationUI.clickMyLists();
 
-        MyListsPageObject myListsPageObject = new MyListsPageObject(driver);
+        MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
         myListsPageObject.closeOnboarding();
         myListsPageObject.openFolderByName(folderName);
         myListsPageObject.swipeByArticleToDelete(appium);
-        myListsPageObject.clickArticleByName(javaTitle);
+        myListsPageObject.clickArticleByName(seleniumTitle);
 
-        String javaTitleAfter = articlePageObject.getArticleTitle(javaTitle);
+        String javaTitleAfter = articlePageObject.getArticleTitle(seleniumTitle);
 
         assertEquals(javaTitleBefore, javaTitleAfter, "Title не совпадает");
     }

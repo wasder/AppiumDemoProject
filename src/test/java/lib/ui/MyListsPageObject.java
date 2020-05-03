@@ -1,21 +1,21 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
-import org.openqa.selenium.By;
 
-public class MyListsPageObject extends MainPageObject {
-    private static final String
-            CLOSE_ONBOARDING = "id:org.wikipedia:id/view_onboarding_action_negative",
-            FOLDER_BY_NAME_TPL = "xpath://*[@text='{FOLDER_NAME}']",
-            ARTICLE_BY_TITLE_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='{ARTICLE_TITLE}']";
+abstract public class MyListsPageObject extends MainPageObject {
+    protected static String
+            CLOSE_ONBOARDING,
+            FOLDER_BY_NAME_TPL,
+            ARTICLE_BY_TITLE_TPL,
+            READING_LISTS_TAB,
+            SWIPE_ACTION_DELETE;
 
-    private static String getFolderByNameTpl(String folderName) {
+    protected static String getFolderByNameTpl(String folderName) {
         return FOLDER_BY_NAME_TPL.replace("{FOLDER_NAME}", folderName);
     }
 
-    private static String getArticleByTitleTpl(String articleTitle) {
+    protected static String getArticleByTitleTpl(String articleTitle) {
         return ARTICLE_BY_TITLE_TPL.replace("{ARTICLE_TITLE}", articleTitle);
-
     }
 
     public MyListsPageObject(AppiumDriver driver) {

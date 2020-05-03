@@ -3,6 +3,7 @@ package lib.ui;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileBy;
 import io.appium.java_client.TouchAction;
+import lib.Platform;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
@@ -15,14 +16,10 @@ import java.util.regex.Pattern;
 import static io.appium.java_client.touch.WaitOptions.waitOptions;
 import static io.appium.java_client.touch.offset.PointOption.point;
 import static java.time.Duration.ofSeconds;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MainPageObject {
     protected AppiumDriver driver;
-
-    private static final String
-            ONBOARDING_SKIP_BTN = "id:org.wikipedia:id/fragment_onboarding_skip_button";
 
     public MainPageObject(AppiumDriver driver) {
         this.driver = driver;
@@ -85,7 +82,12 @@ public class MainPageObject {
 
     public WebElement waitForElementAndCheckText(String locator, String expectedText, long timeoutInSeconds) {
         WebElement webElement = waitForElementPresent(locator, timeoutInSeconds);
-        String actualText = webElement.getAttribute("text");
+        String actualText = null;
+        if (Platform.getInstance().isAndroid()){
+            actualText =  webElement.getAttribute("text");
+        } else if (Platform.getInstance().isIOS()){
+            actualText = webElement.getAttribute("value");
+        }
         assertEquals(
                 expectedText,
                 actualText,
@@ -124,6 +126,24 @@ public class MainPageObject {
         }
     }
 
+    public void swipeUpTillElementAppear(String locator, int maxSwipes){
+        int swipesCounter = 0;
+        while(!this.isElementLocatedOnScreen(locator)) {
+            if (swipesCounter > maxSwipes) {
+                assertTrue(isElementLocatedOnScreen(locator), "Element is not located on screen");
+            }
+            swipeUpQuick();
+            ++swipesCounter;
+        }
+    }
+
+    public boolean isElementLocatedOnScreen(String locator){
+//        int elementLocationY = this.waitForElementPresent(locator, 10).getLocation().getY();
+//        int screenSizeByY = driver.manage().window().getSize().getHeight();
+        return Boolean.parseBoolean(this.waitForElementAndGetAttribute(locator, "visible", 10));
+    }
+
+
     public void swipeElementToLeft(String locator) {
         WebElement webElement = waitForElementPresent(locator, 10);
         int leftX = webElement.getLocation().getX();
@@ -154,10 +174,6 @@ public class MainPageObject {
         By by = getLocatorByString(locator);
         WebElement element = driver.findElement(by);
         assertNotNull(element);
-    }
-
-    public void skipOnboarding() {
-        this.waitForElementAndClick(ONBOARDING_SKIP_BTN, 5);
     }
 
     private By getLocatorByString(String locatorWithType){

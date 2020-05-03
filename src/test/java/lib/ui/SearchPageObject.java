@@ -1,17 +1,22 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
+import lib.Platform;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
-public class SearchPageObject extends MainPageObject {
-    private static final String
-            SEARCH_INIT_ELEMENT = "xpath://*[contains(@text, 'Search Wikipedia')]",
-            SEARCH_INPUT = "id:org.wikipedia:id/search_src_text",
-            SEARCH_RESULT_BY_SUBSTRING_TPL = "xpath://android.view.ViewGroup//*[contains(@text, '{SUBSTRING}')]",
-            SEARCH_CANCEL_BTN = "id:org.wikipedia:id/search_close_btn",
-            SEARCH_RESULTS = "id:org.wikipedia:id/page_list_item_title";
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+
+abstract public class SearchPageObject extends MainPageObject {
+    protected static String
+            SEARCH_INIT_ELEMENT,
+            SEARCH_INPUT,
+            SEARCH_RESULT_BY_SUBSTRING_TPL,
+            SEARCH_CANCEL_BTN,
+            SEARCH_RESULTS;
 
     public SearchPageObject(AppiumDriver driver) {
         super(driver);
@@ -64,5 +69,18 @@ public class SearchPageObject extends MainPageObject {
         return this.waitForElementsPresent(SEARCH_RESULTS, 15);
     }
 
+    public void checkResults(String searchText){
+        //Затем убеждается, что в каждом результате поиска есть это слово.
+        List<WebElement> searchResults = this.getSearchResults();
 
+        for (WebElement searchResult : searchResults) {
+            String actualText = null;
+            if (Platform.getInstance().isAndroid()){
+                actualText =  searchResult.getAttribute("text");
+            } else if (Platform.getInstance().isIOS()){
+                actualText = searchResult.getAttribute("value");
+            }
+            assertThat(actualText, is(containsString(searchText)));
+        }
+    }
 }

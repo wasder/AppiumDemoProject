@@ -1,13 +1,19 @@
-package tests.iOS;
+package tests;
 
-import lib.iOSTestCase;
+import lib.CoreTestCase;
+import lib.Platform;
 import lib.ui.WelcomePageObject;
+import lib.ui.factories.WelcomePageObjectFactory;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestSkippedException;
 
-public class GetStartedTest extends iOSTestCase {
+public class GetStartedTest extends CoreTestCase {
     @Test
     void testPassThoughWelcome() {
-        WelcomePageObject welcomePageObject = new WelcomePageObject(driver);
+        if(Platform.getInstance().isAndroid()){
+            throw new TestSkippedException();
+        }
+        WelcomePageObject welcomePageObject = WelcomePageObjectFactory.get(driver);
 
         welcomePageObject.waitForLearnMoreLink();
         welcomePageObject.clickNextButton();
