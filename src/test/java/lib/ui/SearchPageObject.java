@@ -1,8 +1,8 @@
 package lib.ui;
 
-import io.appium.java_client.AppiumDriver;
 import lib.Platform;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ abstract public class SearchPageObject extends MainPageObject {
             SEARCH_CANCEL_BTN,
             SEARCH_RESULTS;
 
-    public SearchPageObject(AppiumDriver driver) {
+    public SearchPageObject(RemoteWebDriver driver) {
         super(driver);
     }
 
@@ -79,6 +79,8 @@ abstract public class SearchPageObject extends MainPageObject {
                 actualText =  searchResult.getAttribute("text");
             } else if (Platform.getInstance().isIOS()){
                 actualText = searchResult.getAttribute("value");
+            }else if (Platform.getInstance().isMW()){
+                actualText = searchResult.getText();
             }
             assertThat(actualText, is(containsString(searchText)));
         }

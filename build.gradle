@@ -20,5 +20,5 @@ dependencies {
 
 test {
     useJUnitPlatform ()
-    environment("PLATFORM", System.getProperty("platform", "true"))
+    environment("PLATFORM", System.getProperty("platform", "mobile_web"))
 }

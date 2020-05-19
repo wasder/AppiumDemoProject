@@ -1,10 +1,8 @@
 package tests;
 
 import lib.CoreTestCase;
-import lib.ui.ArticlePageObject;
-import lib.ui.MyListsPageObject;
-import lib.ui.NavigationUI;
-import lib.ui.SearchPageObject;
+import lib.Platform;
+import lib.ui.*;
 import lib.ui.factories.ArticlePageObjectFactory;
 import lib.ui.factories.MyListsPageObjectFactory;
 import lib.ui.factories.NavigationUIFactory;
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MyListsTests extends CoreTestCase {
+    private static final String login = "wasdeg";
+    private static final String pass = "11111178";
 
     @Test
     void saveFirstArticleToMyList() {
@@ -26,10 +26,21 @@ public class MyListsTests extends CoreTestCase {
         articlePageObject.waitForTitleElement("Appium");
         String articleTitle = articlePageObject.getArticleTitle("Appium");
         String folderName = "Learning appium";
-        articlePageObject.addArticleToMyNewList(folderName, true);
-        articlePageObject.closeArticle();
 
         NavigationUI navigationUI = NavigationUIFactory.get(driver);
+        if (Platform.getInstance().isMW()) {
+            navigationUI.openNavigation();
+            navigationUI.clickLogin();
+            AuthPageObject authPageObject = new AuthPageObject(driver);
+            authPageObject.enterLoginData(login, pass);
+            authPageObject.submitForm();
+            articlePageObject.addArticleToMyList(folderName);
+            navigationUI.openNavigation();
+        } else {
+            articlePageObject.addArticleToMyNewList(folderName, true);
+        }
+        articlePageObject.closeArticle();
+
         navigationUI.clickMyLists();
 
         MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
@@ -53,7 +64,18 @@ public class MyListsTests extends CoreTestCase {
 
         ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
         articlePageObject.waitForTitleElement(appium);
-        articlePageObject.addArticleToMyNewList(folderName, true);
+
+        NavigationUI navigationUI = NavigationUIFactory.get(driver);
+        if (Platform.getInstance().isMW()) {
+            navigationUI.openNavigation();
+            navigationUI.clickLogin();
+            AuthPageObject authPageObject = new AuthPageObject(driver);
+            authPageObject.enterLoginData(login, pass);
+            authPageObject.submitForm();
+            articlePageObject.addArticleToMyList(folderName);
+        } else {
+            articlePageObject.addArticleToMyNewList(folderName, true);
+        }
         articlePageObject.closeArticle();
 
         //Search and save second
@@ -62,11 +84,13 @@ public class MyListsTests extends CoreTestCase {
         searchPageObject.clickSearchResult("Testing framework for web applications");
 
         articlePageObject.waitForTitleElement(seleniumTitle);
-        String javaTitleBefore = articlePageObject.getArticleTitle(seleniumTitle);
+        String secondTitleBefore = articlePageObject.getArticleTitle(seleniumTitle);
         articlePageObject.addArticleToMyList(folderName);
         articlePageObject.closeArticle();
 
-        NavigationUI navigationUI = NavigationUIFactory.get(driver);
+        if (Platform.getInstance().isMW()){
+            navigationUI.openNavigation();
+        }
         navigationUI.clickMyLists();
 
         MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
@@ -75,9 +99,9 @@ public class MyListsTests extends CoreTestCase {
         myListsPageObject.swipeByArticleToDelete(appium);
         myListsPageObject.clickArticleByName(seleniumTitle);
 
-        String javaTitleAfter = articlePageObject.getArticleTitle(seleniumTitle);
+        String secondTitleAfter = articlePageObject.getArticleTitle(seleniumTitle);
 
-        assertEquals(javaTitleBefore, javaTitleAfter, "Title не совпадает");
+        assertEquals(secondTitleBefore, secondTitleAfter, "Title не совпадает");
     }
 
 }

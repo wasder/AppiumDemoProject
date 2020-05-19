@@ -1,8 +1,8 @@
 package lib.ui;
 
-import io.appium.java_client.AppiumDriver;
 import lib.Platform;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 abstract public class ArticlePageObject extends MainPageObject {
     protected static String
@@ -16,7 +16,9 @@ abstract public class ArticlePageObject extends MainPageObject {
             CLOSE_ARTICLE_BTN,
             BTN_2,
             LIST_TITLE_TPL,
-            CREATE_NEW_LIST;
+            CREATE_NEW_LIST,
+            OPTIONS_REMOVE_FROM_LIST_BTN;
+
 
     protected static String getTitleElement(String substring) {
         return TITLE_TPL.replace("{SUBSTRING}", substring);
@@ -26,7 +28,7 @@ abstract public class ArticlePageObject extends MainPageObject {
         return LIST_TITLE_TPL.replace("{LIST_TITLE}", substring);
     }
 
-    public ArticlePageObject(AppiumDriver driver) {
+    public ArticlePageObject(RemoteWebDriver driver) {
         super(driver);
     }
 
@@ -37,18 +39,22 @@ abstract public class ArticlePageObject extends MainPageObject {
 
     public String getArticleTitle(String substring) {
         WebElement element = waitForTitleElement(substring);
-        if (Platform.getInstance().isAndroid()){
+        if (Platform.getInstance().isAndroid()) {
             return element.getAttribute("content-desc");
-        } else {
+        } else if (Platform.getInstance().isIOS()) {
             return element.getAttribute("label");
+        } else {
+            return element.getText();
         }
     }
 
     public void swipeToFooter() {
-        if (Platform.getInstance().isAndroid()){
+        if (Platform.getInstance().isAndroid()) {
             this.swipeUpToFindElement(FOOTER_ELEMENT, 20);
-        } else {
+        } else if (Platform.getInstance().isIOS()) {
             this.swipeUpTillElementAppear(FOOTER_ELEMENT, 20);
+        } else {
+            this.scrollWebPageTillElementNotVisible(FOOTER_ELEMENT, 20);
         }
     }
 
@@ -63,13 +69,28 @@ abstract public class ArticlePageObject extends MainPageObject {
     }
 
     public void addArticleToMyList(String folderName) {
-        this.waitForElementAndClick(ARTICLE_BOOKMARK, 5);
-        this.waitForElementAndClick(getListTitleTpl(folderName), 5);
+        if (Platform.getInstance().isMW()){
+            this.removeArticleFromSavedIfItAdded();
+            this.waitForElementPresent(ARTICLE_BOOKMARK);
+            this.waitForElementAndClick(ARTICLE_BOOKMARK, 10);
+        }else {
+            this.waitForElementAndClick(ARTICLE_BOOKMARK, 5);
+            this.waitForElementAndClick(getListTitleTpl(folderName), 5);
+        }
+    }
+
+    public void removeArticleFromSavedIfItAdded(){
+        if(this.isElementPresent(OPTIONS_REMOVE_FROM_LIST_BTN)){
+            this.waitForElementAndClick(OPTIONS_REMOVE_FROM_LIST_BTN, 5);
+        }
+        this.waitForElementNotPresent(OPTIONS_REMOVE_FROM_LIST_BTN, 5);
     }
 
     public void closeArticle() {
-        this.waitForElementAndClick(CLOSE_ARTICLE_BTN, 5);
-        this.waitForElementAndClick(BTN_2, 5);
+        if (Platform.getInstance().isIOS() || Platform.getInstance().isAndroid()){
+            this.waitForElementAndClick(CLOSE_ARTICLE_BTN, 5);
+            this.waitForElementAndClick(BTN_2, 5);
+        }
     }
 
     public void assertTitle(String title) {

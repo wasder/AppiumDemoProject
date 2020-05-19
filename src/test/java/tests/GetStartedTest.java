@@ -10,7 +10,7 @@ import org.opentest4j.TestSkippedException;
 public class GetStartedTest extends CoreTestCase {
     @Test
     void testPassThoughWelcome() {
-        if(Platform.getInstance().isAndroid()){
+        if(Platform.getInstance().isAndroid() || Platform.getInstance().isMW()){
             throw new TestSkippedException();
         }
         WelcomePageObject welcomePageObject = WelcomePageObjectFactory.get(driver);

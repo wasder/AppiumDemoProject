@@ -1,7 +1,7 @@
 package lib.ui.ios;
 
-import io.appium.java_client.AppiumDriver;
 import lib.ui.WelcomePageObject;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class IOSWelcomePageObject extends WelcomePageObject {
     static {
@@ -13,7 +13,7 @@ public class IOSWelcomePageObject extends WelcomePageObject {
         LEARN_MORE_ABOUT_DATA = "accessibilityId:Learn more about data collected";
         GET_STARTED_BTN = "accessibilityId:Get started";
     }
-    public IOSWelcomePageObject(AppiumDriver driver) {
+    public IOSWelcomePageObject(RemoteWebDriver driver) {
         super(driver);
     }
 }

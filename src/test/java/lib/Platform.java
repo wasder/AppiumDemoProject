@@ -1,34 +1,43 @@
 package lib;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Platform {
     private static final String PLATFORM_IOS = "ios";
     private static final String PLATFORM_ANDROID = "android";
+    private static final String PLATFORM_MOBILE_WEB = "mobile_web";
     private static final String APPIUM_URL = "http://localhost:4723/wd/hub";
 
     private static Platform instance;
 
-    private Platform(){}
+    private Platform() {
+    }
 
-    public static Platform getInstance(){
-        if (instance == null){
+    public static Platform getInstance() {
+        if (instance == null) {
             instance = new Platform();
         }
         return instance;
     }
 
-    public AppiumDriver getDriver() throws Exception {
+    public RemoteWebDriver getDriver() throws Exception {
         URL URL = new URL(APPIUM_URL);
+
         if (this.isAndroid()) {
             return new AndroidDriver(URL, this.getAndroidDesiredCapabilities());
         } else if (this.isIOS()) {
             return new IOSDriver(URL, this.getIOSDesiredCapabilities());
+        } else if (this.isMW()) {
+            return new ChromeDriver(this.getChromeOptions());
         } else {
             throw new Exception("Cannot detect driver type" + this.getPlatformVar());
         }
@@ -41,6 +50,10 @@ public class Platform {
 
     public boolean isIOS() {
         return isPlatform(PLATFORM_IOS);
+    }
+
+    public boolean isMW() {
+        return isPlatform(PLATFORM_MOBILE_WEB);
     }
 
 
@@ -70,12 +83,28 @@ public class Platform {
         return desiredCapabilities;
     }
 
+    private ChromeOptions getChromeOptions() {
+        Map<String, Object> deviceMetrics = new HashMap<>();
+        deviceMetrics.put("width", 360);
+        deviceMetrics.put("height", 640);
+        deviceMetrics.put("pixelRatio", 3.0);
+
+        Map<String, Object> mobileEmulation = new HashMap<>();
+        mobileEmulation.put("deviceMetrics", deviceMetrics);
+        mobileEmulation.put("userAgent", "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D)");
+
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("window-size=360,640");
+
+        return chromeOptions;
+    }
+
     private boolean isPlatform(String myPlatform) {
         String platform = this.getPlatformVar();
         return myPlatform.equals(platform);
     }
 
-    private String getPlatformVar() {
+    public String getPlatformVar() {
         return System.getenv("PLATFORM");
     }
 }

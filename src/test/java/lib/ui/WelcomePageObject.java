@@ -1,6 +1,6 @@
 package lib.ui;
 
-import io.appium.java_client.AppiumDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 abstract public class WelcomePageObject extends MainPageObject {
 
@@ -12,7 +12,7 @@ abstract public class WelcomePageObject extends MainPageObject {
     protected static String LEARN_MORE_ABOUT_DATA;
     protected static String GET_STARTED_BTN;
 
-    public WelcomePageObject(AppiumDriver driver) {
+    public WelcomePageObject(RemoteWebDriver driver) {
         super(driver);
     }
 
